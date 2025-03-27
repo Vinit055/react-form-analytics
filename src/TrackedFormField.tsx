@@ -11,12 +11,12 @@ import {
 import { useAnalytics } from "./hooks/useAnalytics";
 import { TrackedFormFieldProps } from "./types";
 
-const ERROR_PERSISTENCE_THRESHOLD = 60000; // 1 minute
 export function TrackedFormField<TFormValues extends FieldValues>({
   name,
   label,
   description,
   children,
+  errorTimer = 60000,
 }: Readonly<TrackedFormFieldProps<TFormValues>>) {
   const { trackValidationError } = useAnalytics();
   const form = useFormContext<TFormValues>();
@@ -48,7 +48,7 @@ export function TrackedFormField<TFormValues extends FieldValues>({
             form.formState.errors[name]?.message as string
           );
         }
-      }, ERROR_PERSISTENCE_THRESHOLD);
+      }, errorTimer);
     }
 
     // Cleanup on unmount or when error state changes

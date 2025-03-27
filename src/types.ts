@@ -5,6 +5,7 @@ export type TrackedFormFieldProps<TFormValues extends FieldValues> = {
   label: string;
   description?: string;
   children: React.ReactElement;
+  errorTimer?: number;
 };
 
 export type AnalyticsContextType = {
