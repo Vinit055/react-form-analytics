@@ -6,7 +6,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { AnalyticsContextType } from "../types";
+import { AnalyticsContextType, TabAnalytics } from "../types";
 import axios from "axios";
 import {
   analyticsReducer,
@@ -119,10 +119,7 @@ export const AnalyticsProvider: React.FC<{
   const exportAnalytics = useCallback(
     async (reason: "submit" | "tabClose" | "idle" = "submit") => {
       // First, create clean tab objects without lastVisitTime
-      const cleanTabs: Record<
-        string,
-        { visits: number; totalTimeSpent: number }
-      > = {};
+      const cleanTabs: Record<string, TabAnalytics> = {};
       const now = Date.now();
 
       // Calculate final tab times and create clean tab objects
@@ -137,6 +134,7 @@ export const AnalyticsProvider: React.FC<{
         cleanTabs[tab] = {
           visits: currentTab.visits,
           totalTimeSpent: totalTime,
+          lastVisitTime: currentTab.lastVisitTime,
         };
       });
 
