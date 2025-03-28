@@ -191,7 +191,7 @@ docker-compose up -d
 
 ### 3. Access the Dashboard
 
-Visit [http://localhost:5173](http://localhost:5173) to view analytics.
+Visit [http://localhost:5173](http://localhost:8101) to view analytics.
 
 ## License
 
