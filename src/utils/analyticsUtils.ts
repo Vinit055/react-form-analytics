@@ -26,6 +26,7 @@ export const createInitialTabAnalytics = (): TabAnalytics => ({
   visits: 0,
   totalTimeSpent: 0,
   lastVisitTime: null,
+  lastVisitedAt: null,
 });
 
 export const createInitialAnalyticsState = (
@@ -136,6 +137,7 @@ export const analyticsReducer = (
         ...updatedTabs[action.tab],
         visits: updatedTabs[action.tab].visits + 1,
         lastVisitTime: now,
+        lastVisitedAt: now,
       };
 
       return {

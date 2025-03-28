@@ -27,6 +27,7 @@ export type TabAnalytics = {
   visits: number;
   totalTimeSpent: number; // in milliseconds
   lastVisitTime: number | null;
+  lastVisitedAt: number | null;
 };
 
 export type FormAnalytics = {

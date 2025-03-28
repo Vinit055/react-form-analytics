@@ -135,6 +135,7 @@ export const AnalyticsProvider: React.FC<{
           visits: currentTab.visits,
           totalTimeSpent: totalTime,
           lastVisitTime: currentTab.lastVisitTime,
+          lastVisitedAt: currentTab.lastVisitedAt,
         };
       });
 
