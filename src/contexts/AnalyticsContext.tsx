@@ -13,6 +13,7 @@ import {
   createInitialAnalyticsState,
   getAnalyticsFormFields,
 } from "../utils/analyticsUtils";
+import { useNavigate } from "react-router-dom";
 
 // Constants
 const IDLE_TIMEOUT = 10 * 60 * 1000;
@@ -29,6 +30,7 @@ export const AnalyticsProvider: React.FC<{
   formSchema: Record<string, any>;
 }> = ({ children, tabs, formSchema }) => {
   // Use the form schema to get field names
+  const navigate = useNavigate();
   const formFields = useMemo(
     () => getAnalyticsFormFields(formSchema),
     [formSchema]
@@ -48,6 +50,8 @@ export const AnalyticsProvider: React.FC<{
   );
 
   const idleTimerRef = useRef<number | null>(null);
+  // Add a ref to track if form has been submitted
+  const formAlreadySubmitted = useRef<boolean>(false);
 
   // Clear and reset idle timer
   const resetIdleTimer = useCallback(() => {
@@ -156,6 +160,8 @@ export const AnalyticsProvider: React.FC<{
         // After sending to server, update the state to match what we exported
         if (reason === "submit") {
           dispatch({ type: "FORM_SUBMIT" });
+          // Set formAlreadySubmitted to true if form is submitted
+          formAlreadySubmitted.current = true;
         } else if (reason === "tabClose" || reason === "idle") {
           dispatch({ type: "FORM_ABANDON" });
         }
@@ -188,7 +194,7 @@ export const AnalyticsProvider: React.FC<{
       try {
         await exportAnalytics("submit");
         // After successful submission, redirect to a success page
-        window.location.href = `/${redirectUrl}`;
+        navigate(`/${redirectUrl}`);
       } catch (error) {
         console.error("Error during form submission:", error);
         return { success: false, error };
@@ -199,30 +205,36 @@ export const AnalyticsProvider: React.FC<{
 
   // Track when user leaves/closes the page
   useEffect(() => {
+    // When analytics state changes (new session_id) - reset the submission state
+    if (analytics.sessionId) {
+      formAlreadySubmitted.current = false;
+    }
+
     // Define event handlers
     const handleUnload = () => {
-      // Use navigator.sendBeacon for reliable data sending during page unload
-      const blob = new Blob(
-        [
-          JSON.stringify({
-            ...analytics,
-            formAbandoned: true,
-            exportReason: "tabClose",
-          }),
-        ],
-        { type: "application/json" }
-      );
-      navigator.sendBeacon(`${API_URL}/formAnalytics`, blob);
+      // Only send beacon if form hasn't been submitted already
+      if (!formAlreadySubmitted.current) {
+        // Use navigator.sendBeacon for reliable data sending during page unload
+        const blob = new Blob(
+          [
+            JSON.stringify({
+              ...analytics,
+              formAbandoned: true,
+              exportReason: "tabClose",
+            }),
+          ],
+          { type: "application/json" }
+        );
+        navigator.sendBeacon(`${API_URL}/formAnalytics`, blob);
+      }
     };
 
     // Add event listeners
     window.addEventListener("unload", handleUnload);
-    window.addEventListener("beforeunload", handleUnload);
 
     // Clean up event listeners on component unmount
     return () => {
       window.removeEventListener("unload", handleUnload);
-      window.removeEventListener("beforeunload", handleUnload);
     };
   }, [analytics]);
 
