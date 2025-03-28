@@ -12,7 +12,7 @@ export type AnalyticsContextType = {
   analytics: FormAnalytics;
   trackValidationError: (field: string, error: string) => void;
   trackTabChange: (tab: string) => void;
-  trackFormSubmit: () => void;
+  trackFormSubmit: (redirectUrl: string) => void;
   trackFormAbandon: () => void;
   resetAnalytics: () => void;
   exportAnalytics: (reason?: "submit" | "tabClose" | "idle") => void;

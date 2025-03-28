@@ -183,16 +183,19 @@ export const AnalyticsProvider: React.FC<{
     [analytics, dispatch]
   );
 
-  const trackFormSubmit = useCallback(async () => {
-    try {
-      await exportAnalytics("submit");
-      // After successful submission, redirect to a success page
-      window.location.href = "/form-success";
-    } catch (error) {
-      console.error("Error during form submission:", error);
-      return { success: false, error };
-    }
-  }, [exportAnalytics]);
+  const trackFormSubmit = useCallback(
+    async (redirectUrl: string) => {
+      try {
+        await exportAnalytics("submit");
+        // After successful submission, redirect to a success page
+        window.location.href = `/${redirectUrl}`;
+      } catch (error) {
+        console.error("Error during form submission:", error);
+        return { success: false, error };
+      }
+    },
+    [exportAnalytics]
+  );
 
   // Track when user leaves/closes the page
   useEffect(() => {
